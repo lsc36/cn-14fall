@@ -15,6 +15,8 @@ def read_data():
 def main():
     data = read_data()
     ptt2 = PTT2(data['login']['id'], data['login']['pass'], True)
+    ptt2.post(data['post']['board'], data['post']['title'],
+        data['post']['content'])
 
 
 if __name__ == '__main__':

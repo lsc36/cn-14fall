@@ -33,3 +33,23 @@ class PTT2(Telnet):
         self.write(b'\r\n')
         self.read_until('呼叫器'.encode('big5'))
         self.read_very_eager()  # read everyting left
+
+    def post(self, board, title, content):
+        """Post to given board with title and content"""
+        # goto board
+        self.write(b's' + board.encode('big5') + b'\r\n')
+        # TODO: handle splashscreen
+        self.read_until('進板畫面'.encode('big5'))
+        self.read_very_eager()  # read everyting left
+
+        # post
+        self.write(b'\x10\r\n')  # Ctrl-P Enter
+        self.read_until('標題：'.encode('big5'))
+        self.write(title.encode('big5') + b'\r\n')
+        self.read_until(b'1:  1')
+        self.write(content.encode('big5'))
+        self.write(b'\x18\r\n')  # Ctrl-X Enter
+        self.read_until('請按任意鍵繼續'.encode('big5'))
+        self.write(b'\r\n')
+        self.read_until('進板畫面'.encode('big5'))
+        self.read_very_eager()  # read everyting left
