@@ -28,6 +28,9 @@ class PTT2(Telnet):
         super().write(buf)
         if self.debug: print('write %d bytes: %s' % (len(buf), buf))
 
+    def read_everything_left(self):
+        while self.read_very_eager(): pass
+
     def __init__(self, user, passwd, debug=False):
         """Connect and login"""
         super().__init__('ptt2.cc')
@@ -40,11 +43,11 @@ class PTT2(Telnet):
         self.read_until('請按任意鍵繼續'.encode('big5'))
         self.write(b'\r\n')
         self.read_until('呼叫器'.encode('big5'))
-        self.read_very_eager()  # read everyting left
+        self.read_everything_left()
 
     def goto_main_menu(self):
         self.write(ARROW_LEFT * 10)
-        while self.read_very_eager(): pass  # read everyting left
+        self.read_everything_left()
 
     def post(self, board, title, content):
         """Post to given board with title and content"""
@@ -53,7 +56,7 @@ class PTT2(Telnet):
         self.write(b's' + board.encode('big5') + b'\r\n')
         # TODO: handle splashscreen
         self.read_until('進板畫面'.encode('big5'))
-        self.read_very_eager()  # read everyting left
+        self.read_everything_left()
 
         # post
         self.write(CTRL_P + b'\r\n')
@@ -65,4 +68,4 @@ class PTT2(Telnet):
         self.read_until('請按任意鍵繼續'.encode('big5'))
         self.write(b'\r\n')
         self.read_until('進板畫面'.encode('big5'))
-        self.read_very_eager()  # read everyting left
+        self.read_everything_left()
