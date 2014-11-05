@@ -19,6 +19,7 @@ def main():
         data['post']['content'])
     ptt2.mail(data['mail']['id'], data['mail']['title'],
         data['mail']['content'])
+    ptt2.waterball(data['waterball']['id'], data['waterball']['content'])
     ptt2.close()
 
 

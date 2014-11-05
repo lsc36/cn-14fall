@@ -92,3 +92,20 @@ class PTT2(Telnet):
         self.write(b'\r\n')
         self.read_until('離開'.encode('big5'))
         self.read_everything_left()
+
+    def waterball(self, user_id, content):
+        # goto user list
+        self.goto_main_menu()
+        self.write(b't' + ARROW_RIGHT * 2)
+        self.read_until('說明'.encode('big5'))
+        self.read_everything_left()
+
+        # search for given user
+        # XXX: assume given user visible by login user
+        self.write(b's' + user_id.encode('big5') + b'\r\n')
+        self.read_until(user_id.encode('big5'))  # search result
+        self.read_everything_left()
+
+        # waterball
+        self.write(b'w' + content.encode('big5') + b'\r\n\r\n')
+        self.read_everything_left()
