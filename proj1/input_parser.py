@@ -8,7 +8,7 @@ class InputParser(HTMLParser):
         elif tag == 'board': self.idx1 = 'post'
         elif tag == 'w': self.idx1 = 'waterball'
         elif tag == 'm': self.idx1 = 'mail'
-        
+
         if tag == 'w' or tag == 'm': self.idx2 = 'id'
         elif tag == 'p': self.idx2 = 'title'
         else: self.idx2 = tag
