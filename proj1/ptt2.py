@@ -1,6 +1,14 @@
 from telnetlib import Telnet
 
 
+CTRL_P = b'\x10'
+CTRL_X = b'\x18'
+ARROW_UP = b'\x1b[A'
+ARROW_DOWN = b'\x1b[B'
+ARROW_LEFT = b'\x1b[D'
+ARROW_RIGHT = b'\x1b[C'
+
+
 class PTT2(Telnet):
 
     def read_until(self, expected, timeout=None):
@@ -34,21 +42,26 @@ class PTT2(Telnet):
         self.read_until('呼叫器'.encode('big5'))
         self.read_very_eager()  # read everyting left
 
+    def goto_main_menu(self):
+        self.write(ARROW_LEFT * 10)
+        while self.read_very_eager(): pass  # read everyting left
+
     def post(self, board, title, content):
         """Post to given board with title and content"""
         # goto board
+        self.goto_main_menu()
         self.write(b's' + board.encode('big5') + b'\r\n')
         # TODO: handle splashscreen
         self.read_until('進板畫面'.encode('big5'))
         self.read_very_eager()  # read everyting left
 
         # post
-        self.write(b'\x10\r\n')  # Ctrl-P Enter
+        self.write(CTRL_P + b'\r\n')
         self.read_until('標題：'.encode('big5'))
         self.write(title.encode('big5') + b'\r\n')
         self.read_until(b'1:  1')
         self.write(content.encode('big5'))
-        self.write(b'\x18\r\n')  # Ctrl-X Enter
+        self.write(CTRL_X + b'\r\n')
         self.read_until('請按任意鍵繼續'.encode('big5'))
         self.write(b'\r\n')
         self.read_until('進板畫面'.encode('big5'))
