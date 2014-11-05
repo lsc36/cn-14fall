@@ -69,3 +69,26 @@ class PTT2(Telnet):
         self.write(b'\r\n')
         self.read_until('進板畫面'.encode('big5'))
         self.read_everything_left()
+
+    def mail(self, user_id, title, content):
+        # goto mailbox
+        self.goto_main_menu()
+        self.write(b'm' + ARROW_RIGHT * 2)
+        self.read_until('離開'.encode('big5'))
+        self.read_everything_left()
+
+        # send mail
+        self.write(CTRL_P)
+        self.read_until('代號'.encode('big5'))
+        self.write(user_id.encode('big5') + b'\r\n')
+        self.read_until('主題：'.encode('big5'))
+        self.write(title.encode('big5') + b'\r\n')
+        self.read_until(b'1:  1')
+        self.write(content.encode('big5'))
+        self.write(CTRL_X + b'\r\n')
+        self.read_until(b'[N]')
+        self.write(b'\r\n')
+        self.read_until('請按任意鍵繼續'.encode('big5'))
+        self.write(b'\r\n')
+        self.read_until('離開'.encode('big5'))
+        self.read_everything_left()
