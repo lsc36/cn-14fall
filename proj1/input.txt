@@ -1,0 +1,13 @@
+<ID>MinamiKotori</ID>
+<PASS>(.8.)</PASS>
+<BOARD>Test</BOARD>
+<P>(.8.)</P>
+<CONTENT>OAO
+QAQ
+(.8.)</CONTENT>
+<W>lsc36</W>
+<CONTENT>(.8.)</CONTENT>
+<M>lsc36</M>
+<TITLE>testingtitle</TITLE>
+<CONTENT>(.8.)(.8.)(.8.)</CONTENT>
+<EXIT>
