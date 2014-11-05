@@ -18,7 +18,7 @@ class InputParser(HTMLParser):
 
     def handle_data(self, data):
         if self.idx1 and self.idx2:
-            self.data[self.idx1][self.idx2] = data
+            self.data[self.idx1][self.idx2] = data.replace('\n', '\r\n')
 
     def parse_all(self, s):
         self.data = {idx1: dict()
