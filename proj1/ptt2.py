@@ -7,11 +7,13 @@ class PTT2(Telnet):
         """Print bytes read if debug flag is set"""
         s = super().read_until(expected, timeout=None)
         if self.debug: print('read %d bytes: %s' % (len(s), s))
+        return s
 
     def read_very_eager(self):
         """Print bytes read if debug flag is set"""
         s = super().read_very_eager()
         if self.debug: print('read %d bytes: %s' % (len(s), s))
+        return s
 
     def write(self, buf):
         """Print bytes written if debug flag is set"""
