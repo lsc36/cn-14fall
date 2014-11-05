@@ -6,7 +6,17 @@ class PTT2(Telnet):
     def read_until(self, expected, timeout=None):
         """Print bytes read if debug flag is set"""
         s = super().read_until(expected, timeout=None)
-        if self.debug: print(s)
+        if self.debug: print('read %d bytes: %s' % (len(s), s))
+
+    def read_very_eager(self):
+        """Print bytes read if debug flag is set"""
+        s = super().read_very_eager()
+        if self.debug: print('read %d bytes: %s' % (len(s), s))
+
+    def write(self, buf):
+        """Print bytes written if debug flag is set"""
+        super().write(buf)
+        if self.debug: print('write %d bytes: %s' % (len(buf), buf))
 
     def __init__(self, user, passwd, debug=False):
         """Connect and login"""
