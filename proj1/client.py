@@ -17,6 +17,7 @@ def main():
     ptt2 = PTT2(data['login']['id'], data['login']['pass'], True)
     ptt2.post(data['post']['board'], data['post']['title'],
         data['post']['content'])
+    ptt2.close()
 
 
 if __name__ == '__main__':
