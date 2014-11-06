@@ -129,3 +129,13 @@ class PTT2(Telnet):
         ]
         # TODO: fetch content
         return newmail_list
+
+    def get_waterball(self):
+        """Wait until waterball received"""
+        self.read_until(b'\x07')  # terminal bell
+        s = self.read_everything_left()
+        match = re.search(b'.*\xa1\xb9(\w+)\x1b\[[\d;]+m (.*) \x1b', s).groups()
+
+        self.write(b'\r\n')
+        return {'from': match[0].decode('big5'),
+            'content': match[1].decode('big5')}
