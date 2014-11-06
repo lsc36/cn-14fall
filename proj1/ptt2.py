@@ -127,7 +127,15 @@ class PTT2(Telnet):
             'from': x[4].decode('big5'), 'title': x[6].decode('big5')}
             for x in match_list
         ]
-        # TODO: fetch content
+        # fetch content
+        for mail in newmail_list:
+            self.write(mail['id'].encode('big5') + b'\r\n' + ARROW_RIGHT)
+            s = self.read_until('瀏覽'.encode('big5'))
+            self.read_everything_left()
+            s = re.sub(b'\x1b\[[\d;]*[mHK]', b'', s)  # clear control chars
+            mail['content'] = re.search(b'\xa2w\r\n\n((.|\n)*)\r\n*  \xc2s', s
+                ).group(1).decode('big5')
+            self.write(ARROW_LEFT)
         return newmail_list
 
     def get_waterball(self):

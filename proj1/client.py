@@ -31,6 +31,9 @@ def main():
     for mail in ptt2.get_newmail_list():
         print("Mail ID: %s From: %s Title: %s"
             % (mail['id'], mail['from'], mail['title']))
+        print("== Begin mail ==")
+        print(mail['content'])
+        print("== End of mail ==")
     print("Waiting for waterball...")
     wb = ptt2.get_waterball()
     print("Waterball from: %s content: %s" % (wb['from'], wb['content']))
