@@ -15,7 +15,7 @@ def read_data():
 def main():
     data = read_data()
     print("Logging in as %s ..." % (data['login']['id']))
-    ptt2 = PTT2(data['login']['id'], data['login']['pass'], True)
+    ptt2 = PTT2(data['login']['id'], data['login']['pass'])
     print("Posting article on board %s, title: %s ..."
         % (data['post']['board'], data['post']['title']))
     ptt2.post(data['post']['board'], data['post']['title'],
