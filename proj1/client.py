@@ -28,7 +28,9 @@ def main():
         % (data['waterball']['id'], data['waterball']['content']))
     ptt2.waterball(data['waterball']['id'], data['waterball']['content'])
     print("Checking new mails...")
-    for mail in ptt2.get_newmail_list():
+    newmail_list = ptt2.get_newmail_list()
+    if not newmail_list: print("No new mails")
+    for mail in newmail_list:
         print("Mail ID: %s From: %s Title: %s"
             % (mail['id'], mail['from'], mail['title']))
         print("== Begin mail ==")
