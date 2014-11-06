@@ -2,10 +2,11 @@
 
 from ptt2 import PTT2
 from input_parser import InputParser
+import sys
 
 
 def read_data():
-    input_file = open('input.txt', 'r')
+    input_file = open(sys.argv[1])
     parser = InputParser()
     data = parser.parse_all(input_file.read())
     input_file.close()

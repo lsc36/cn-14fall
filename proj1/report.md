@@ -1,7 +1,8 @@
 # Computer Network Project 1 by B01902010 李紹詮
 
  -  Language: Python 3
- -  Usage: `python3 client.py` or `./client.py` (with execution permissions)
+ -  Usage: `python3 client.py <input_file>`
+    or `./client.py <input_file>` (with execution permissions)
 
 ## Sample Output
 
