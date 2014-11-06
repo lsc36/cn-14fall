@@ -1,4 +1,5 @@
 from telnetlib import Telnet
+import re
 
 
 CTRL_P = b'\x10'
@@ -29,7 +30,12 @@ class PTT2(Telnet):
         if self.debug: print('write %d bytes: %s' % (len(buf), buf))
 
     def read_everything_left(self):
-        while self.read_very_eager(): pass
+        ret = b''
+        s = self.read_very_eager()
+        while s:
+            ret = ret + s
+            s = self.read_very_eager()
+        return ret
 
     def __init__(self, user, passwd, debug=False):
         """Connect and login"""
@@ -70,12 +76,15 @@ class PTT2(Telnet):
         self.read_until('進板畫面'.encode('big5'))
         self.read_everything_left()
 
-    def mail(self, user_id, title, content):
-        # goto mailbox
+    def goto_mailbox(self):
         self.goto_main_menu()
         self.write(b'm' + ARROW_RIGHT * 2)
-        self.read_until('離開'.encode('big5'))
-        self.read_everything_left()
+        s = self.read_until('離開'.encode('big5'))
+        s = s + self.read_everything_left()
+        return s
+
+    def mail(self, user_id, title, content):
+        self.goto_mailbox()
 
         # send mail
         self.write(CTRL_P)
@@ -109,3 +118,14 @@ class PTT2(Telnet):
         # waterball
         self.write(b'w' + content.encode('big5') + b'\r\n\r\n')
         self.read_everything_left()
+
+    def get_newmail_list(self):
+        s = self.goto_mailbox()
+        match_list = re.findall(b'((\d+) \+  ?(\d+/\d+) (\x1b\[[\d;]+m)?(\w+) +(\x1b\[m)?(([^\x1b\r]|\x1b\[[0-9;]*[mH])+))', s)
+        newmail_list = [
+            {'id': x[1].decode('big5'), 'date': x[2].decode('big5'),
+            'from': x[4].decode('big5'), 'title': x[6].decode('big5')}
+            for x in match_list
+        ]
+        # TODO: fetch content
+        return newmail_list

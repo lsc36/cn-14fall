@@ -27,6 +27,10 @@ def main():
     print("Sending waterball to %s, content: %s ..."
         % (data['waterball']['id'], data['waterball']['content']))
     ptt2.waterball(data['waterball']['id'], data['waterball']['content'])
+    print("Checking new mails...")
+    for mail in ptt2.get_newmail_list():
+        print("Mail ID: %s From: %s Title: %s"
+            % (mail['id'], mail['from'], mail['title']))
     ptt2.close()
 
 
