@@ -15,7 +15,7 @@ Mail ID: 8 From: lsc36 Title: R: testingtitle
 == Begin mail ==
 中文ㄛ
 
-※ 引述《MinamiKotori (南アシベ)》之銘言：
+※ 引述《MinamiKotori (南ことり)》之銘言：
 : (.8.)(.8.)(.8.)
 
 --
