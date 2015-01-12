@@ -3,6 +3,7 @@
 import tornado.ioloop
 import tornado.web
 from tornado.options import define, options, parse_command_line
+import db
 
 
 define("port", default=8888, help="run on the given port", type=int)
@@ -10,17 +11,42 @@ define("debug", default=False, help="run in debug mode")
 
 
 class BaseHandler(tornado.web.RequestHandler):
-    pass
+    def get_user(self):
+        token = get_argument('token', default='')
+        return db.get_user_from_token(token)
 
 
 class LoginHandler(BaseHandler):
     def post(self):
-        pass
+        name = self.get_argument('user', default='')
+        passwd = self.get_argument('pass', default='')
+        token = db.user_login(name, passwd)
+        if not token:
+            self.write({
+                'msg': 'Invalid username/password',
+                })
+        else:
+            self.write({
+                'token': token,
+                'rooms': [],
+                'msg': 'Login success',
+                })
 
 
 class RegisterHandler(BaseHandler):
     def post(self):
-        pass
+        name = self.get_argument('user', default='')
+        passwd = self.get_argument('pass', default='')
+        if not db.user_create(name, passwd):
+            self.write({
+                'result': False,
+                'msg': 'Invalid username/password',
+                })
+        else:
+            self.write({
+                'result': True,
+                'msg': 'Register success',
+                })
 
 
 class RefreshHandler(BaseHandler):
