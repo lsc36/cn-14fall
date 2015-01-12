@@ -2,6 +2,7 @@ import os
 import time
 import logging
 from hashlib import sha256
+from tornado.options import options
 
 users = {}
 login_users = {}
@@ -42,3 +43,20 @@ def user_create(name, passwd):
         }
     logging.info('User %s created' % name)
     return True
+
+
+def user_refresh(name):
+    try:
+        token = users[name]['login_token']
+        login_users[token]['last_refresh'] = time.time()
+        return True
+    except KeyError:
+        return False
+
+
+def check_logout():
+    for token, userinfo in list(login_users.items()):
+        if userinfo['last_refresh'] + options.timeout < time.time():
+            users[userinfo['name']]['login_token'] = ''
+            login_users.pop(token)
+            logging.info('User %s logged out' % userinfo['name'])

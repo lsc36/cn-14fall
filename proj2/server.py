@@ -8,11 +8,13 @@ import db
 
 define("port", default=8888, help="run on the given port", type=int)
 define("debug", default=False, help="run in debug mode")
+define("timeout", default=15, help="user timeout (secs)")
+define("check_interval", default=5, help="interval of checking user timeout (secs)")
 
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_user(self):
-        token = get_argument('token', default='')
+        token = self.get_argument('token', default='')
         return db.get_user_from_token(token)
 
 
@@ -51,7 +53,23 @@ class RegisterHandler(BaseHandler):
 
 class RefreshHandler(BaseHandler):
     def post(self):
-        pass
+        user = self.get_user()
+        if not user:
+            self.write({
+                'result': False,
+                'msg': 'Invalid token',
+                })
+            return
+        if not db.user_refresh(user['name']):
+            self.write({
+                'result': False,
+                'msg': 'Refresh failed',
+                })
+        else:
+            self.write({
+                'result': True,
+                'msg': 'Refresh success',
+                })
 
 
 class UserListHandler(BaseHandler):
@@ -101,6 +119,10 @@ def main():
         debug=options.debug,
         )
     app.listen(options.port)
+    check_logout_loop = tornado.ioloop.PeriodicCallback(
+        db.check_logout, 1000 * options.check_interval
+        )
+    check_logout_loop.start()
     tornado.ioloop.IOLoop.instance().start()
 
 
