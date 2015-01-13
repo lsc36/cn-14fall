@@ -35,6 +35,9 @@ class BaseHandler(tornado.web.RequestHandler):
         token = self.get_argument('token', default='')
         return db.get_user_from_token(token)
 
+    def set_default_headers(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+
 
 class LoginHandler(BaseHandler):
     def post(self):
