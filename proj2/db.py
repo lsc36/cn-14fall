@@ -7,17 +7,19 @@ from tornado.options import options
 
 users = {}
 login_users = {}
+rooms = {}
 
 logger = logging.getLogger()
 
 
 def load():
-    global users
+    global users, rooms
     if not options.db: return
     try:
         with open(options.db, 'r') as f:
             db = json.loads(f.read())
         users = db['users']
+        rooms = db['rooms']
         logging.info('Database loaded from %s' % options.db)
     except:
         logging.warning('Error loading database from %s, use empty' % options.db)
@@ -30,6 +32,7 @@ def save():
         userinfo_c = userinfo.copy()
         userinfo_c['login_token'] = ''
         db['users'][name] = userinfo_c
+    db['rooms'] = rooms
     try:
         with open(options.db, 'w') as f:
             f.write(json.dumps(db))
@@ -71,6 +74,7 @@ def user_create(name, passwd):
         'passwd_sha256': sha256(passwd.encode()).hexdigest(),
         'login_token': '',
         'last_refresh': time.time(),
+        'rooms': [],
         }
     logging.info('User %s created' % name)
     return True
@@ -100,3 +104,19 @@ def get_user_list():
             'online': userinfo['login_token'] != '',
             })
     return userlist
+
+
+def create_room(userlist):
+    userlist.sort()
+    hsh = sha256()
+    for name in userlist: hsh.update(name.encode() + b'#')
+    room_id = hsh.hexdigest()
+    if room_id not in rooms:
+        rooms[room_id] = {
+            'users': userlist,
+            'msgs': [],
+            }
+        for name in userlist:
+            users[name]['rooms'].append(room_id)
+        logging.info("Room created with users %s" % ', '.join(userlist))
+    return room_id

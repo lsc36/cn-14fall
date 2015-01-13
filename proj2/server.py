@@ -46,7 +46,7 @@ class LoginHandler(BaseHandler):
         else:
             self.write({
                 'token': token,
-                'rooms': [],
+                'rooms': db.get_user_from_token(token)['rooms'],
                 'msg': 'Login success',
                 })
 
@@ -93,8 +93,27 @@ class UserListHandler(BaseHandler):
 
 
 class MakeRoomHandler(BaseHandler):
+    @require_token
     def post(self):
-        pass
+        user = self.get_user()
+        room_userlist = self.get_arguments('user')
+        if len(room_userlist) < 2:
+            self.write({
+                'result': False,
+                'msg': 'Should provide more than 2 users',
+                })
+            return
+        for roomuser in room_userlist:
+            if roomuser not in db.users:
+                self.write({
+                    'result': False,
+                    'msg': 'User %s does not exist' % roomuser,
+                    })
+                return
+        self.write({
+            'result': True,
+            'room_id': db.create_room(room_userlist),
+            })
 
 
 class GetMessageHandler(BaseHandler):
