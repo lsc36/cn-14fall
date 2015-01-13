@@ -14,6 +14,20 @@ define("check_interval", default=5, help="interval of checking user timeout (sec
 define("db", default="db.json", help="load/save database from/to file")
 
 
+def require_token(func):
+    def check_token_and_exec(*args, **kwargs):
+        self = args[0]
+        user = self.get_user()
+        if not user:
+            self.write({
+                'result': False,
+                'msg': 'Invalid token',
+                })
+        else:
+            return func(*args, **kwargs)
+    return check_token_and_exec
+
+
 class BaseHandler(tornado.web.RequestHandler):
     def get_user(self):
         token = self.get_argument('token', default='')
@@ -54,14 +68,9 @@ class RegisterHandler(BaseHandler):
 
 
 class RefreshHandler(BaseHandler):
+    @require_token
     def get(self):
         user = self.get_user()
-        if not user:
-            self.write({
-                'result': False,
-                'msg': 'Invalid token',
-                })
-            return
         if not db.user_refresh(user['name']):
             self.write({
                 'result': False,
@@ -75,14 +84,8 @@ class RefreshHandler(BaseHandler):
 
 
 class UserListHandler(BaseHandler):
+    @require_token
     def get(self):
-        user = self.get_user()
-        if not user:
-            self.write({
-                'result': False,
-                'msg': 'Invalid token',
-                })
-            return
         self.write({
             'userlist': db.get_user_list(),
             })
