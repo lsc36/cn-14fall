@@ -3,6 +3,7 @@ import time
 import logging
 import json
 from hashlib import sha256
+from tornado.concurrent import Future
 from tornado.options import options
 
 users = {}
@@ -27,12 +28,15 @@ def load():
 
 def save():
     if not options.db: return
-    db = {'users': {}}
+    db = {'users': {}, 'rooms': {}}
     for name, userinfo in users.items():
         userinfo_c = userinfo.copy()
         userinfo_c['login_token'] = ''
         db['users'][name] = userinfo_c
-    db['rooms'] = rooms
+    for room_id, room in rooms.items():
+        room_c = room.copy()
+        room_c['waiters'] = []
+        db['rooms'][room_id] = room_c
     try:
         with open(options.db, 'w') as f:
             f.write(json.dumps(db))
@@ -115,8 +119,38 @@ def create_room(userlist):
         rooms[room_id] = {
             'users': userlist,
             'msgs': [],
+            'waiters': [],
             }
         for name in userlist:
             users[name]['rooms'].append(room_id)
         logging.info("Room created with users %s" % ', '.join(userlist))
     return room_id
+
+
+def get_messages_since(room_id, last_time):
+    for i in range(len(rooms[room_id]['msgs'])):
+        if rooms[room_id]['msgs'][i]['time'] > last_time:
+            return rooms[room_id]['msgs'][i:]
+    return []
+
+
+def wait_for_messages(room_id):
+    future = Future()
+    rooms[room_id]['waiters'].append(future)
+    return future
+
+
+def cancel_wait(room_id, future):
+    rooms[room_id]['waiters'].remove(future)
+
+
+def send_message(room_id, user, msg):
+    msg_entry = {
+        'time': time.time(),
+        'from': user['name'],
+        'msg': msg,
+        }
+    rooms[room_id]['msgs'].append(msg_entry)
+    for waiter in rooms[room_id]['waiters']:
+        waiter.set_result([msg_entry])
+    rooms[room_id]['waiters'] = []

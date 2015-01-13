@@ -2,7 +2,9 @@
 
 import tornado.ioloop
 import tornado.web
+import tornado.gen
 from tornado.options import define, options, parse_command_line
+import logging
 import atexit
 import db
 
@@ -117,13 +119,66 @@ class MakeRoomHandler(BaseHandler):
 
 
 class GetMessageHandler(BaseHandler):
+    @require_token
+    @tornado.gen.coroutine
     def get(self):
-        pass
+        room_id = self.get_argument('room_id', default='')
+        last_time = self.get_argument('last', default='0.0')
+        if room_id not in db.rooms:
+            self.write({
+                'result': False,
+                'msg': 'Invalid room id',
+                })
+            return
+        try:
+            last_time = float(last_time)
+        except ValueError:
+            self.write({
+                'result': False,
+                'msg': 'Invalid room id',
+                })
+            return
+        msgs = db.get_messages_since(room_id, last_time)
+        if msgs:
+            self.write({
+                'result': True,
+                'msgs': msgs,
+                })
+        else:
+            self.room_id = room_id
+            self.future = db.wait_for_messages(room_id)
+            msgs = yield self.future
+            self.write({
+                'result': True,
+                'msgs': msgs,
+                })
+
+    def on_connection_close(self):
+        db.cancel_wait(self.room_id, self.future)
 
 
 class SendMessageHandler(BaseHandler):
+    @require_token
     def post(self):
-        pass
+        room_id = self.get_argument('room_id', default='')
+        msg = self.get_argument('msg', default='')
+        if room_id not in db.rooms:
+            self.write({
+                'result': False,
+                'msg': 'Invalid room id',
+                })
+            return
+        if not msg:
+            self.write({
+                'result': False,
+                'msg': 'Empty message',
+                })
+            return
+        db.send_message(room_id, self.get_user(), msg)
+        self.write({
+            'result': True,
+            'msg': 'Send message success',
+            })
 
 
 class GetFileHandler(BaseHandler):
