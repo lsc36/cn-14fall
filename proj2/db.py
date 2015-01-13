@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+import json
 from hashlib import sha256
 from tornado.options import options
 
@@ -8,6 +9,33 @@ users = {}
 login_users = {}
 
 logger = logging.getLogger()
+
+
+def load():
+    global users
+    if not options.db: return
+    try:
+        with open(options.db, 'r') as f:
+            db = json.loads(f.read())
+        users = db['users']
+        logging.info('Database loaded from %s' % options.db)
+    except:
+        logging.warning('Error loading database from %s, use empty' % options.db)
+
+
+def save():
+    if not options.db: return
+    db = {'users': {}}
+    for name, userinfo in users.items():
+        userinfo_c = userinfo.copy()
+        userinfo_c['login_token'] = ''
+        db['users'][name] = userinfo_c
+    try:
+        with open(options.db, 'w') as f:
+            f.write(json.dumps(db))
+        logging.info('Database saved to %s' % options.db)
+    except:
+        logging.error('Error saving database to %s' % options.db)
 
 
 def get_user_from_token(token):

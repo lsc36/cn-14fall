@@ -3,6 +3,7 @@
 import tornado.ioloop
 import tornado.web
 from tornado.options import define, options, parse_command_line
+import atexit
 import db
 
 
@@ -10,6 +11,7 @@ define("port", default=8888, help="run on the given port", type=int)
 define("debug", default=False, help="run in debug mode")
 define("timeout", default=15, help="user timeout (secs)")
 define("check_interval", default=5, help="interval of checking user timeout (secs)")
+define("db", default="db.json", help="load/save database from/to file")
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -104,6 +106,8 @@ class SendFileHandler(BaseHandler):
 
 def main():
     parse_command_line()
+    db.load()
+    atexit.register(db.save)
     app = tornado.web.Application(
         [
             (r"/login", LoginHandler),
