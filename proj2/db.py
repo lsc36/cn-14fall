@@ -88,3 +88,13 @@ def check_logout():
             users[userinfo['name']]['login_token'] = ''
             login_users.pop(token)
             logging.info('User %s logged out' % userinfo['name'])
+
+
+def get_user_list():
+    userlist = []
+    for name, userinfo in users.items():
+        userlist.append({
+            'name': name,
+            'online': userinfo['login_token'] != '',
+            })
+    return userlist

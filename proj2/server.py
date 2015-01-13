@@ -76,7 +76,16 @@ class RefreshHandler(BaseHandler):
 
 class UserListHandler(BaseHandler):
     def get(self):
-        pass
+        user = self.get_user()
+        if not user:
+            self.write({
+                'result': False,
+                'msg': 'Invalid token',
+                })
+            return
+        self.write({
+            'userlist': db.get_user_list(),
+            })
 
 
 class MakeRoomHandler(BaseHandler):
