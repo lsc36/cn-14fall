@@ -49,11 +49,12 @@ def user_login(name, passwd):
     try:
         if users[name]['passwd_sha256'] == sha256(passwd.encode()).hexdigest():
             if users[name]['login_token']:
-                login_users[users[name]['login_token']]['last_refresh'] = time.time()
+                users[name]['last_refresh'] = time.time()
                 return users[name]['login_token']
             token = sha256(os.urandom(64)).hexdigest()
             users[name]['login_token'] = token
-            login_users[token] = {'name': name, 'last_refresh': time.time()}
+            users[name]['last_refresh'] = time.time()
+            login_users[token] = users[name]
             logging.info('User %s logged in' % name)
             return token
         else:
@@ -66,8 +67,10 @@ def user_create(name, passwd):
     if not name or not passwd: return False
     if name in users: return False
     users[name] = {
+        'name': name,
         'passwd_sha256': sha256(passwd.encode()).hexdigest(),
         'login_token': '',
+        'last_refresh': time.time(),
         }
     logging.info('User %s created' % name)
     return True
@@ -75,8 +78,7 @@ def user_create(name, passwd):
 
 def user_refresh(name):
     try:
-        token = users[name]['login_token']
-        login_users[token]['last_refresh'] = time.time()
+        users[name]['last_refresh'] = time.time()
         return True
     except KeyError:
         return False
@@ -85,7 +87,7 @@ def user_refresh(name):
 def check_logout():
     for token, userinfo in list(login_users.items()):
         if userinfo['last_refresh'] + options.timeout < time.time():
-            users[userinfo['name']]['login_token'] = ''
+            userinfo['login_token'] = ''
             login_users.pop(token)
             logging.info('User %s logged out' % userinfo['name'])
 
