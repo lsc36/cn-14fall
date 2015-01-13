@@ -54,7 +54,7 @@ class RegisterHandler(BaseHandler):
 
 
 class RefreshHandler(BaseHandler):
-    def post(self):
+    def get(self):
         user = self.get_user()
         if not user:
             self.write({
