@@ -46,10 +46,12 @@ class LoginHandler(BaseHandler):
         token = db.user_login(name, passwd)
         if not token:
             self.write({
+                'result': False,
                 'msg': 'Invalid username/password',
                 })
         else:
             self.write({
+                'result': True,
                 'token': token,
                 'rooms': db.get_user_from_token(token)['rooms'],
                 'msg': 'Login success',
