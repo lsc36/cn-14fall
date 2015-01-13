@@ -87,6 +87,7 @@ class UserListHandler(BaseHandler):
     @require_token
     def get(self):
         self.write({
+            'result': True,
             'userlist': db.get_user_list(),
             })
 
