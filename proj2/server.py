@@ -105,6 +105,12 @@ class MakeRoomHandler(BaseHandler):
         user = self.get_user()
         room_userlist = self.get_arguments('user')
         room_userlist = list(set(room_userlist))
+        if user['name'] not in room_userlist:
+            self.write({
+                'result': False,
+                'msg': 'Cannot create a room without yourself',
+                })
+            return
         if len(room_userlist) < 2:
             self.write({
                 'result': False,
