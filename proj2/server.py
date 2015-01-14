@@ -104,6 +104,7 @@ class MakeRoomHandler(BaseHandler):
     def post(self):
         user = self.get_user()
         room_userlist = self.get_arguments('user')
+        room_userlist = list(set(room_userlist))
         if len(room_userlist) < 2:
             self.write({
                 'result': False,
