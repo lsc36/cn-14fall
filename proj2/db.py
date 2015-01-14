@@ -9,20 +9,23 @@ from tornado.options import options
 users = {}
 login_users = {}
 rooms = {}
+rooms_by_hash = {}
 
 logger = logging.getLogger()
 
 
 def load():
-    global users, rooms
+    global users, rooms, rooms_by_hash
     if not options.db: return
     try:
         with open(options.db, 'r') as f:
             db = json.loads(f.read())
         users = db['users']
-        rooms = db['rooms']
+        rooms_by_hash = db['rooms']
+        for room_hash, room in rooms_by_hash.items():
+            rooms[room['id']] = room
         logging.info('Database loaded from %s' % options.db)
-    except:
+    except RuntimeError:
         logging.warning('Error loading database from %s, use empty' % options.db)
 
 
@@ -33,10 +36,10 @@ def save():
         userinfo_c = userinfo.copy()
         userinfo_c['login_token'] = ''
         db['users'][name] = userinfo_c
-    for room_id, room in rooms.items():
+    for room_hash, room in rooms_by_hash.items():
         room_c = room.copy()
         room_c['waiters'] = []
-        db['rooms'][room_id] = room_c
+        db['rooms'][room_hash] = room_c
     try:
         with open(options.db, 'w') as f:
             f.write(json.dumps(db))
@@ -114,17 +117,20 @@ def create_room(userlist):
     userlist.sort()
     hsh = sha256()
     for name in userlist: hsh.update(name.encode() + b'#')
-    room_id = hsh.hexdigest()
-    if room_id not in rooms:
-        rooms[room_id] = {
+    room_hash = hsh.hexdigest()
+    if room_hash not in rooms_by_hash:
+        room_id = sha256(os.urandom(64)).hexdigest()
+        rooms_by_hash[room_hash] = {
+            'id': room_id,
             'users': userlist,
             'msgs': [],
             'waiters': [],
             }
         for name in userlist:
             users[name]['rooms'].append(room_id)
+        rooms[room_id] = rooms_by_hash[room_hash]
         logging.info("Room created with users %s" % ', '.join(userlist))
-    return room_id
+    return rooms_by_hash[room_hash]['id']
 
 
 def get_messages_since(room_id, last_time):
