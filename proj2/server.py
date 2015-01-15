@@ -219,6 +219,15 @@ class SendFileHandler(BaseHandler):
         pass
 
 
+class SaveHandler(BaseHandler):
+    def get(self):
+        db.save()
+        self.write({
+            'result': True,
+            'msg': 'Database save success',
+            })
+
+
 def main():
     parse_command_line()
     db.load()
@@ -235,6 +244,7 @@ def main():
             (r"/sendmsg", SendMessageHandler),
             (r"/getfile", GetFileHandler),
             (r"/sendfile", SendFileHandler),
+            (r"/save", SaveHandler),
             ],
         debug=options.debug,
         )
