@@ -133,6 +133,10 @@ def create_room(userlist):
     return rooms_by_hash[room_hash]['id']
 
 
+def get_room_users(room_id):
+    return rooms[room_id]['users']
+
+
 def get_messages_since(room_id, last_time):
     for i in range(len(rooms[room_id]['msgs'])):
         if rooms[room_id]['msgs'][i]['time'] > last_time:

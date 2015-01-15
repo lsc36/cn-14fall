@@ -130,6 +130,22 @@ class MakeRoomHandler(BaseHandler):
             })
 
 
+class RoomInfoHandler(BaseHandler):
+    @require_token
+    def get(self):
+        room_id = self.get_argument('room_id', default='')
+        if room_id not in db.rooms:
+            self.write({
+                'result': False,
+                'msg': 'Invalid room id',
+                })
+            return
+        self.write({
+            'result': True,
+            'users': db.get_room_users(room_id),
+            })
+
+
 class GetMessageHandler(BaseHandler):
     @require_token
     @tornado.gen.coroutine
@@ -214,6 +230,7 @@ def main():
             (r"/refresh", RefreshHandler),
             (r"/userlist", UserListHandler),
             (r"/mkroom", MakeRoomHandler),
+            (r"/roominfo", RoomInfoHandler),
             (r"/getmsg", GetMessageHandler),
             (r"/sendmsg", SendMessageHandler),
             (r"/getfile", GetFileHandler),
