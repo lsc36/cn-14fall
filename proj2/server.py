@@ -150,7 +150,7 @@ class GetMessageHandler(BaseHandler):
     @require_token
     @tornado.gen.coroutine
     def get(self):
-        room_id = self.get_argument('room_id', default='')
+        room_id = self.get_argument('room', default='')
         last_time = self.get_argument('last', default='0.0')
         if room_id not in db.rooms:
             self.write({
@@ -188,7 +188,7 @@ class GetMessageHandler(BaseHandler):
 class SendMessageHandler(BaseHandler):
     @require_token
     def post(self):
-        room_id = self.get_argument('room_id', default='')
+        room_id = self.get_argument('room', default='')
         msg = self.get_argument('msg', default='')
         if room_id not in db.rooms:
             self.write({
