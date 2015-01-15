@@ -133,7 +133,7 @@ class MakeRoomHandler(BaseHandler):
 class RoomInfoHandler(BaseHandler):
     @require_token
     def get(self):
-        room_id = self.get_argument('room_id', default='')
+        room_id = self.get_argument('room', default='')
         if room_id not in db.rooms:
             self.write({
                 'result': False,
