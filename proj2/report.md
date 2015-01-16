@@ -28,7 +28,7 @@ easily implemented either natively (Javascript AJAX) or with built-in libraries
 
 Each response includes a additional field "result: true/false" to indicate if the command is executed correctly.
 
-If result == False, it would have another additional field "msg" telling user what went wrong.
+If result == False, there will be another field "msg" telling the user what went wrong.
 
 # User & Operator Guide
 
