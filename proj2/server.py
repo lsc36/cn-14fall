@@ -229,7 +229,7 @@ class GetFileHandler(BaseHandler):
         self.set_header('Content-Type', 'application/octet-stream')
         self.set_header(
             'Content-Disposition',
-            'attachment; filename=%s' % fileinfo['name'],
+            'attachment; filename="%s"' % fileinfo['name'],
             )
         self.write(fileinfo['content'])
 
