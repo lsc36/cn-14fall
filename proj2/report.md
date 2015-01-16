@@ -36,7 +36,11 @@ If result == False, there will be another field "msg" telling the user what went
 
 * Requirments: Python3, tornado (pip3 install tornado)
 
-```./server.py``` (with exec privileges) to start server.
+`./server.py` (with exec privileges) to start server. An HTTP server will start
+at port 8888. Use `./server.py --help` for more options.
+
+You should specify server address in server and client code (search for the
+default value `127.0.0.1:8888`).
 
 ## Web-based UI
 
