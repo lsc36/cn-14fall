@@ -253,7 +253,7 @@ class SendFileHandler(BaseHandler):
         upload_file = self.request.files['file'][0]
         hsh = db.add_file(upload_file['filename'], upload_file['body'])
         msg = '<a href="%s/getfile?file=%s">%s</a>' % (
-                'http://index.lv6.tw',
+                'http://index.lv6.tw:8888',
                 hsh,
                 upload_file['filename'],
             )
