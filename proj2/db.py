@@ -2,6 +2,7 @@ import os
 import time
 import logging
 import json
+import re
 from hashlib import sha256
 from tornado.concurrent import Future
 from tornado.options import options
@@ -11,6 +12,9 @@ login_users = {}
 rooms = {}
 rooms_by_hash = {}
 files = {}
+blacklist = [
+    'fuck',
+    ]
 
 logger = logging.getLogger()
 
@@ -158,6 +162,8 @@ def cancel_wait(room_id, future):
 
 
 def send_message(room_id, user, msg):
+    for word in blacklist:
+        msg = re.sub(word, '*' * len(word), msg, flags=re.I)
     msg_entry = {
         'time': time.time(),
         'from': user['name'],
