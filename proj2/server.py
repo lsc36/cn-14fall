@@ -86,7 +86,8 @@ class RefreshHandler(BaseHandler):
         else:
             self.write({
                 'result': True,
-                'msg': 'Refresh success',
+                'rooms': user['rooms'],
+                'userlist': db.get_user_list(),
                 })
 
 
