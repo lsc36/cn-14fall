@@ -86,7 +86,13 @@ class RefreshHandler(BaseHandler):
         else:
             self.write({
                 'result': True,
-                'rooms': user['rooms'],
+                'rooms': [
+                    {
+                        'id': room_id,
+                        'users': db.get_room_users(room_id)
+                    }
+                    for room_id in user['rooms']
+                    ],
                 'userlist': db.get_user_list(),
                 })
 
