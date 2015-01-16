@@ -36,7 +36,7 @@ If result == False, it would have another additional field "msg" telling user wh
 
 * Requirments: Python3, tornado (pip3 install tornado)
 
-```./server.py``` to start server.
+```./server.py``` (with exec privileges) to start server.
 
 ## Web-based UI
 
