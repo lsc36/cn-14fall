@@ -254,7 +254,6 @@ class SendFileHandler(BaseHandler):
         hsh = db.add_file(upload_file['filename'], upload_file['body'])
         msg = '<a href="%s/getfile?file=%s">%s</a>' % (
                 'http://index.lv6.tw',
-                self.get_argument('token'),
                 hsh,
                 upload_file['filename'],
             )
