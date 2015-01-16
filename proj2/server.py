@@ -218,12 +218,51 @@ class SendMessageHandler(BaseHandler):
 
 class GetFileHandler(BaseHandler):
     def get(self):
-        pass
+        hsh = self.get_argument('file', default='')
+        fileinfo = db.get_file(hsh)
+        if not fileinfo:
+            self.write({
+                'result': False,
+                'msg': 'Invalid file id',
+                })
+            return
+        self.set_header('Content-Type', 'application/octet-stream')
+        self.set_header(
+            'Content-Disposition',
+            'attachment; filename=%s' % fileinfo['name'],
+            )
+        self.write(fileinfo['content'])
 
 
 class SendFileHandler(BaseHandler):
+    @require_token
     def post(self):
-        pass
+        room_id = self.get_argument('room', default='')
+        if room_id not in db.rooms:
+            self.write({
+                'result': False,
+                'msg': 'Invalid room id',
+                })
+            return
+        if 'file' not in self.request.files:
+            self.write({
+                'result': False,
+                'msg': 'File not provided',
+                })
+            return
+        upload_file = self.request.files['file'][0]
+        hsh = db.add_file(upload_file['filename'], upload_file['body'])
+        msg = '<a href="%s/getfile?file=%s">%s</a>' % (
+                'http://index.lv6.tw',
+                self.get_argument('token'),
+                hsh,
+                upload_file['filename'],
+            )
+        db.send_message(room_id, self.get_user(), msg)
+        self.write({
+            'result': True,
+            'msg': 'Send file success',
+            })
 
 
 class SaveHandler(BaseHandler):

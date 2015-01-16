@@ -10,12 +10,13 @@ users = {}
 login_users = {}
 rooms = {}
 rooms_by_hash = {}
+files = {}
 
 logger = logging.getLogger()
 
 
 def load():
-    global users, rooms, rooms_by_hash
+    global users, rooms, rooms_by_hash, files
     if not options.db: return
     try:
         with open(options.db, 'r') as f:
@@ -24,6 +25,7 @@ def load():
         rooms_by_hash = db['rooms']
         for room_hash, room in rooms_by_hash.items():
             rooms[room['id']] = room
+        files = db['files']
         logging.info('Database loaded from %s' % options.db)
     except RuntimeError:
         logging.warning('Error loading database from %s, use empty' % options.db)
@@ -40,6 +42,7 @@ def save():
         room_c = room.copy()
         room_c['waiters'] = []
         db['rooms'][room_hash] = room_c
+    db['files'] = files
     try:
         with open(options.db, 'w') as f:
             f.write(json.dumps(db))
@@ -164,3 +167,25 @@ def send_message(room_id, user, msg):
     for waiter in rooms[room_id]['waiters']:
         waiter.set_result([msg_entry])
     rooms[room_id]['waiters'] = []
+
+
+def add_file(filename, content):
+    hsh = sha256(content).hexdigest()
+    with open('uploads/' + hsh, 'wb') as f:
+        f.write(content)
+    files[hsh] = {
+        'name': filename,
+        }
+    logging.info("File %s (%s) uploaded" % (filename, hsh))
+    return hsh
+
+
+def get_file(hsh):
+    if hsh not in files:
+        return False
+    with open('uploads/' + hsh, 'rb') as f:
+        content = f.read()
+    return {
+        'name': files[hsh]['name'],
+        'content': content,
+        }
